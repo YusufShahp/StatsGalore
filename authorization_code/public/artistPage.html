@@ -1,0 +1,797 @@
+<!doctype html>
+<html>
+<head>
+    <script>
+
+        var pan1 = 0;
+        var pan2 = 0;
+        var artists = [];
+        var artists1 = [];
+        var artists2 = [];
+
+        var stats1 = [];
+        var stats2 = [];
+        //0 - empty
+        //1 - showing artists
+        //2 - showing stats
+
+        var disable = false;
+
+        function onSearch(panel)
+        {
+            if(!disable)
+            {
+                disable = true;
+                document.getElementById("search"+panel).disabled = true;
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                const accToken = urlParams.get('AccToken');
+
+                var url = window.location.href.split('?')[0];
+                url = url.replace('artist_home', 'inner_artist_home_search');
+                let ajaxUrl = new URL(url);
+                ajaxUrl.searchParams.append('AccToken', accToken);
+                var inputVal = document.getElementById("search"+panel).value;
+                // window.alert(inputVal);
+                ajaxUrl.searchParams.append('Name', inputVal);
+                // window.alert(ajaxUrl);
+                runAjax(ajaxUrl, "search", panel);
+
+
+                document.getElementById("statTable"+panel).className = "table1 hide";
+                document.getElementById("artTable"+panel).className = "table2";
+                document.getElementById("name"+panel).className = "hide";
+                if(panel == 1)
+                {
+                    pan1 = 1;
+                }
+                if(panel == 2)
+                {
+                    pan2 = 1;
+                }
+            }
+        }
+
+        var numSelected;
+
+        function artistStats(panel, num)
+        {
+            if(!disable)
+            {
+                disable = true;
+                document.getElementById("search"+panel).disabled = true;
+                numSelected = num;
+                if(panel == 1)
+                {
+                    artists = artists1;
+                }
+                else
+                {
+                    artists = artists2;
+                }
+
+                if(num <= artists.length)
+                {
+                    var ID = artists[(num - 1)].split("::")[1];
+
+                    const queryString = window.location.search;
+                    const urlParams = new URLSearchParams(queryString);
+                    const accToken = urlParams.get('AccToken');
+
+                    var url = window.location.href.split('?')[0];
+                    url = url.replace('artist_home', 'inner_artist_home_stats');
+                    let ajaxUrl = new URL(url);
+                    ajaxUrl.searchParams.append('AccToken', accToken);
+                    ajaxUrl.searchParams.append('ID', ID);
+                    runAjax(ajaxUrl, "stats", panel);
+
+                    document.getElementById("statTable"+panel).className = "table1 hide";
+                    document.getElementById("artTable"+panel).className = "table2 hide";
+                    document.getElementById("name"+panel).className = "";
+                    document.getElementById("name"+panel).textContent = "Loading...";
+                }
+            }
+        }
+
+        function runAjax(url, type, panel) 
+        {
+        
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", url, true);
+ 
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+
+                var resp = this.responseText;
+
+                if(resp == "Time Out...")
+                {
+                    var url = window.location.href.split('?')[0];
+                    url = url.replace('artist_home', 'time_out');
+                    window.location.href = url;
+                }
+
+                if(type == "search")
+                {
+                    if(resp != 'NoneNoneqwe')
+                    {
+                        // window.alert(resp);
+                        artists = resp.split(';;');
+                        placeArtists(panel); 
+                    }
+                }
+                else if(type == "stats")
+                {
+                    if(panel == 1)
+                    {
+                        document.getElementById("name" + panel).textContent = artists1[(numSelected - 1)].split("::")[0];
+                        placeStats(artists1[(numSelected - 1)].split("::")[2] + ":" + resp, panel);
+                    }
+                    else
+                    {
+                        document.getElementById("name" + panel).textContent = artists2[(numSelected - 1)].split("::")[0];
+                        placeStats(artists2[(numSelected - 1)].split("::")[2] + ":" + resp, panel);
+                    }
+                    
+                }
+            }
+        } 
+        xhr.send();
+        }
+
+        function placeStats(text, panel)
+        {
+            var stats = text.split(":");
+            if(panel == 1)
+            {
+                stats1 = stats;
+            }
+            else
+            {
+                stats2 = stats;
+            }
+            
+            var pop = parseInt(stats[0]);
+            var dance = parseFloat(stats[1]).toPrecision(3);
+            var energy = parseFloat(stats[2]).toPrecision(3);
+            var happy = parseFloat(stats[3]).toPrecision(3);
+            var electrical = parseFloat(stats[4]).toPrecision(3);
+            var tempo = parseFloat(stats[5]).toPrecision(3);
+
+            var ind;
+            if(pop > 90)
+            {
+                ind = "very high"
+            }
+            else if(pop > 85)
+            {
+                ind = "high"
+            }
+            else if(pop > 80)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 70)
+            {
+                ind = "mid"
+            }
+            else if(pop > 65)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('pop' + panel).textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //DANCE
+
+            pop = dance;
+
+            if(pop > 85)
+            {
+                ind = "very high"
+            }
+            else if(pop > 80)
+            {
+                ind = "high"
+            }
+            else if(pop > 75)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 70)
+            {
+                ind = "mid"
+            }
+            else if(pop > 60)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('dance' + panel).textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //ENERGY
+
+            pop = energy;
+
+            if(pop > 85)
+            {
+                ind = "very high"
+            }
+            else if(pop > 80)
+            {
+                ind = "high"
+            }
+            else if(pop > 75)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 70)
+            {
+                ind = "mid"
+            }
+            else if(pop > 60)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('energy' + panel).textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //Happy
+
+            pop = happy;
+
+            if(pop > 75)
+            {
+                ind = "very high"
+            }
+            else if(pop > 65)
+            {
+                ind = "high"
+            }
+            else if(pop > 55)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 50)
+            {
+                ind = "mid"
+            }
+            else if(pop > 40)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('happy' + panel).textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //Electrical
+
+            pop = electrical;
+
+            if(pop > 90)
+            {
+                ind = "very high"
+            }
+            else if(pop > 85)
+            {
+                ind = "high"
+            }
+            else if(pop > 80)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 75)
+            {
+                ind = "mid"
+            }
+            else if(pop > 65)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('electrical' + panel).textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //tempo
+
+            pop = tempo;
+
+            if(pop > 110)
+            {
+                ind = "high"
+            }
+            else if(pop > 90)
+            {
+                ind = "mid"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('tempo' + panel).textContent = "\u00A0" + pop + " BPM (" + ind + ")";
+
+            document.getElementById("statTable"+panel).className = "table1";
+            document.getElementById("artTable"+panel).className = "table2 hide";
+            if(panel == 1)
+            {
+                pan1 = 2;
+            }
+            if(panel == 2)
+            {
+                pan2 = 2;
+            }
+
+            document.getElementById("search"+panel).disabled = false;
+
+            compPanel();
+            disable = false;
+        }
+
+        function compPanel()
+        {
+            if(pan1 == 2 && pan2 == 2)
+            {
+                document.getElementById("compTable").className = "table1";
+                document.getElementById("comparingP").textContent = "Versus";
+
+                for(let i = 0; i < stats1.length; i++)
+                {
+                    if(stats1[i] > stats2[i])
+                    {
+                        document.getElementById("1C"+(i+1)).style.color = 'green';
+                        if(i == 0)
+                        {
+                            document.getElementById("1C"+(i+1)).innerHTML = "" + (stats1[i] - stats2[i]).toPrecision(2) + "\u00A0";
+                        }
+                        else
+                        {
+                            document.getElementById("1C"+(i+1)).innerHTML = "" + (stats1[i] - stats2[i]).toPrecision(2) + "\u00A0";
+                        }
+                        document.getElementById("2C"+(i+1)).innerHTML = "\u00A0";
+                    }
+                    else if(stats1[i] < stats2[i])
+                    {
+                        document.getElementById("2C"+(i+1)).style.color = 'red';
+                        if(i == 0)
+                        {
+                            document.getElementById("2C"+(i+1)).innerHTML = "\u00A0" + (stats2[i] - stats1[i]).toPrecision(2);
+                        }
+                        else
+                        {
+                            document.getElementById("2C"+(i+1)).innerHTML = "\u00A0" + (stats2[i] - stats1[i]).toPrecision(2);
+                        }
+                        document.getElementById("1C"+(i+1)).innerHTML = "\u00A0";
+                    }
+                    else
+                    {
+                        document.getElementById("2C"+(i+1)).style.color = 'white';
+                        document.getElementById("1C"+(i+1)).style.color = 'white';
+                        document.getElementById("2C"+(i+1)).innerHTML = "0.0";
+                        document.getElementById("1C"+(i+1)).innerHTML = "0.0";
+                    }
+                }
+            }
+            else
+            {
+                document.getElementById("compTable").className = "table1 hide";
+                document.getElementById("comparingP").textContent = "Comparing Panel";
+            }
+        }
+
+        function placeArtists(panel)
+        {
+            for(let i = 0; i < 6; i++)
+            {
+                if(i <= artists.length)
+                {
+                    document.getElementById(panel+'artist'+(i+1)).textContent = "\u00A0" + artists[i].split('::')[0] + "\u00A0";
+                }
+                else
+                {
+                    document.getElementById(panel+'artist'+(i+1)).textContent = "\u00A0 \u00A0";
+                }
+            }
+
+            if(panel == 1)
+            {
+                artists1 = artists;
+            }
+            else
+            {
+                artists2 = artists;
+            }
+
+            document.getElementById("search"+panel).disabled = false;
+            disable = false;
+
+            compPanel();
+        }
+
+        // function placeElements(text)
+        // {
+        //     var parts = text.split(',');
+        //     var stats = parts[0];
+        //     var artists = parts[1];
+        //     var songs = parts[2];
+
+        //     songList = songs;
+
+        //     var pop = parseInt(stats[0]).toPrecision(3);
+        //     var dance = parseInt(stats[1]).toPrecision(3);
+        //     var energy = parseInt(stats[2]).toPrecision(3);
+        //     var happy = parseInt(stats[3]).toPrecision(3);
+        //     var electrical = 100 - parseInt(stats[4]).toPrecision(3);
+        //     var tempo = parseInt(stats[5]).toPrecision(3);
+
+
+        //     placeTable(artists, "artist");
+        //     placeTable(songs, "song")
+        // }
+
+        // placeTable(list, start)
+        // {
+        //     list = list.split(";");
+        //     for(let i = 0; i < 49; i++)
+        //     {
+        //         document.getElementById(start + (i+1)).textContent = list[i];
+        //     }
+        // }
+
+    </script>
+        <style type="text/css">
+            .hide {
+              display: none;
+            }
+      
+            body {
+              background-color: rgb(13, 7, 29);
+              color: white;
+              text-align: center;
+              font-family: "Monaco", "Courier New", monospace;
+            }
+
+            h1{
+                text-decoration: underline;
+            }
+
+            p{
+                font-size: smaller;
+                text-align: left;
+                line-height: .7;
+            }
+
+            .rcorners1 {
+                border-radius: 25px;
+                background: #26ad21;
+                border: 2px solid #eaf4ea;
+                padding: 20px;
+                width: 40%;
+                height: 50%;
+                margin: 0 auto;
+                font-weight: bold;
+            }
+
+            .table1{
+                text-align: left;
+                margin-left: auto;
+                margin-right: auto;
+                border:none;
+                border-collapse: collapse;
+            }
+
+            .table2{
+                text-align: left;
+                margin-left: auto;
+                margin-right: auto;
+                border:none;
+                border-collapse: collapse;
+            }
+
+            table{
+                margin-left: auto;
+                margin-right: auto;
+                border:solid;
+                border-collapse: collapse;
+            }
+
+            .noRight{
+                border-left: 1px solid white;
+                border-collapse: collapse;
+            }
+
+            .allCells{
+                border-top: 1px solid white;
+                border-bottom: 1px solid white;
+                border-collapse: collapse;
+            }
+
+            .allCells:hover {
+                background-color:  rgb(31, 3, 158);
+            }
+
+            .float-parent-element { 
+                margin-left: auto;
+                margin-right: auto;
+                width: 100%; 
+                text-align:center;
+                margin: 0px;
+                padding: 0px;
+                border: 0px;
+                /* height: 100%; */
+            } 
+            .float-child-element { 
+                /* float: left;  */
+                /* width: 40%;  */
+            } 
+
+            .empty {
+                margin: 0px;
+                width: 7.5%;
+                float: left;
+            }
+
+            .red { 
+                background-color: rgb(3, 75, 158); 
+                /* margin-left: 50%;  */
+                border-radius: 25px;
+                border: 2px solid #eaf4ea;
+                padding: 20px;
+                width: 35%;
+                height: 50%;
+                margin: 0px;
+                font-weight: bold;
+                float: left;
+            } 
+
+            .middle{
+                background-color: rgb(73, 68, 88); 
+                /* margin-left: 50%;  */
+                border-radius: 25px;
+                border: 2px solid #eaf4ea;
+                padding: 20px;
+                width: 10%;
+                height: 50%;
+                margin: 0px;
+                font-weight: bold;
+                float: left;
+            }
+
+            .yellow { 
+                margin-left: 2%; 
+                background-color: rgb(174, 0, 255); 
+                border-radius: 25px;
+                /* background: #26ad21; */
+                border: 2px solid #eaf4ea;
+                padding: 20px;
+                width: 35%;
+                height: 50%;
+                margin: 0px;
+                font-weight: bold;
+                float:left;
+            }
+      
+            .button {
+                background-color: #fa2929;
+                color:white;
+                border: 1px solid white;
+                padding: 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 120%;
+                margin: 4px 2px;
+                border-radius: 14px;
+            }
+
+            .search {
+                background-color: #3a0f1d;
+                color:white;
+                border-radius: 8px;
+                border: 1px solid white;
+            }
+
+            .dText{
+                color: #26ad21;
+                text-align: center;
+            }
+
+            .hide{
+                display:none;
+            }
+
+            input{
+                border-radius: 8px;
+                background-color: black;
+                color: white;
+            }
+
+            .instructions{
+                display:inline-block;
+            }
+          </style>
+<title>Stats Galore</title>
+</head>
+<body>
+    <h1 id="content1">Stats Galore</h1>
+    <h2 id="content1">Compare Artists</h2>
+
+    <div class="float-parent-element">
+        <div class = "empty">
+            <p>&nbsp</p>
+        </div>
+        <div class="red">
+            <h4 id = "name1" class = "hide"></h4>
+            <table id = "statTable1" class = "table1 hide">
+                <tr>
+                  <td>Mainstream &nbsp</td>
+                  <td class="noRight" id="pop1">&nbsp 85.4 (high)</td>
+                </tr>
+                <tr>
+                  <td>Danceability &nbsp</td>
+                  <td class="noRight" id="dance1">&nbsp 71 (average)</td>
+                </tr>
+                <tr>
+                  <td>Energy &nbsp</td>
+                  <td class="noRight" id="energy1">&nbsp 45 (low)</td>
+                </tr>
+                <tr>
+                    <td>Happiness &nbsp</td>
+                    <td class="noRight" id="happy1">&nbsp 55 (mid/low)</td>
+                </tr>
+                <tr>
+                    <td>Electrical &nbsp</td>
+                    <td class="noRight" id="electrical1">&nbsp 90 (high)</td>
+                </tr>
+                <tr>
+                    <td>Tempo &nbsp</td>
+                    <td class="noRight" id="tempo1">&nbsp 130 BPM (high)</td>
+                </tr>
+            </table>
+
+            <table id = "artTable1" class="table2 hide">
+                <tr>
+                    <td class = "allCells" id="1artist1" onclick = "artistStats(1, 1)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="1artist2" onclick = "artistStats(1, 2)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="1artist3" onclick = "artistStats(1, 3)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="1artist4" onclick = "artistStats(1, 4)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="1artist5" onclick = "artistStats(1, 5)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="1artist6" onclick = "artistStats(1, 6)">&nbsp</td>
+                </tr>
+            </table>
+
+            <br/>
+            <input type="text" id = "search1" placeholder="Enter an Artist">
+            <button type="submit" class="search" onclick="onSearch(1)">Search</button>
+        </div>
+        <!-- <div class="float-child-element"> -->
+        <div class="middle">
+            <h4 id = "comparingP">Comparing Panel</h4>
+            <table id = "compTable" class = "table1 hide">
+                <tr>
+                  <td id="1C1">&nbsp</td>
+                  <td class="noRight" id="2C1">12</td>
+                </tr>
+                <tr>
+                  <td id="1C2">&nbsp</td>
+                  <td class="noRight" id="2C2">234</td>
+                </tr>
+                <tr>
+                  <td id="1C3">&nbsp</td>
+                  <td class="noRight" id="2C3">234</td>
+                </tr>
+                <tr>
+                    <td id="1C4">&nbsp</td>
+                    <td class="noRight" id="2C4">23</td>
+                </tr>
+                <tr>
+                    <td id="1C5">&nbsp</td>
+                    <td class="noRight" id="2C5">23</td>
+                </tr>
+                <tr>
+                    <td id="1C6">&nbsp</td>
+                    <td class="noRight" id="2C6">2</td>
+                </tr>
+            </table>
+            <br/>
+        </div>
+        <div class="yellow">
+                <h4 id = "name2" class = "hide"></h4>
+              <table id = "statTable2" class = "table1 hide">
+                  <tr>
+                    <td>Mainstream &nbsp</td>
+                    <td class="noRight" id="pop2">&nbsp 85.4 (high)</td>
+                  </tr>
+                  <tr>
+                    <td>Danceability &nbsp</td>
+                    <td class="noRight" id="dance2">&nbsp 71 (average)</td>
+                  </tr>
+                  <tr>
+                    <td>Energy &nbsp</td>
+                    <td class="noRight" id="energy2">&nbsp 45 (low)</td>
+                  </tr>
+                  <tr>
+                      <td>Happiness &nbsp</td>
+                      <td class="noRight" id="happy2">&nbsp 55 (mid/low)</td>
+                  </tr>
+                  <tr>
+                      <td>Electrical &nbsp</td>
+                      <td class="noRight" id="electrical2">&nbsp 90 (high)</td>
+                  </tr>
+                  <tr>
+                      <td>Tempo &nbsp</td>
+                      <td class="noRight" id="tempo2">&nbsp 130 BPM (high)</td>
+                  </tr>
+              </table>
+
+              <table id = "artTable2" class="table2 hide">
+                <tr>
+                    <td class = "allCells" id="2artist1" onclick = "artistStats(2, 1)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="2artist2" onclick = "artistStats(2, 2)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="2artist3" onclick = "artistStats(2, 3)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="2artist4" onclick = "artistStats(2, 4)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="2artist5" onclick = "artistStats(2, 5)">&nbsp</td>
+                </tr>
+                <tr>
+                    <td class = "allCells" id="2artist6" onclick = "artistStats(2, 6)">&nbsp</td>
+                </tr>
+            </table>
+
+            <br/>
+            <input type="text" id = "search2" placeholder="Enter an Artist">
+            <button type="submit" class="search" onclick="onSearch(2)">Search</button>
+        </div>
+        <div class = "empty">
+            <p>&nbsp</p>
+        </div>
+    </div>
+
+    <!-- <div class="instructions">
+        <p>&nbsp Info on your stats:</p>
+        <p>&nbsp Mainstream: The higher this value, the more popular the artist is.</p>
+        <p>&nbsp Danceability: How easy the artist's music is to dance to.</p>
+        <p>&nbsp Energy: How energetic their music is.</p>
+        <p>&nbsp Happiness: How happy their music sounds (just sonically, lyrics are not examined).</p>
+        <p>&nbsp Electrical: How electrical sounding their music is, or the opposite of acoustic.</p>
+        <p>&nbsp Tempo: This value is measured in beats per second, represents how "fast" the artist's music is</p>
+    </div> -->
+
+</body>
+</html>

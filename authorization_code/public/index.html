@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Stats Galore</title>
+    <!-- /<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"> -->
+
+    <script>
+      function artistPage()
+      {
+        var url = window.location.href.split('#access_token')[0];
+        url += 'artist_home';
+        var newUrl = new URL(url);
+        newUrl.searchParams.append('AccToken', document.getElementById('accToken').textContent);
+        newUrl.searchParams.append('Username', document.getElementById('ID').textContent);
+        window.location.href = newUrl;
+      }
+
+      function userPage()
+      {
+        var url = window.location.href.split('#access_token')[0];
+        url += 'user_home';
+        var newUrl = new URL(url);
+        newUrl.searchParams.append('AccToken', document.getElementById('accToken').textContent);
+        newUrl.searchParams.append('Username', document.getElementById('ID').textContent);
+        window.location.href = newUrl;
+      }
+
+    </script>
+
+    <style type="text/css">
+      #login, #loggedin {
+        display: none;
+      }
+      .text-overflow {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 500px;
+      }
+
+      body {
+        background-color: rgb(13, 7, 29);
+        background-color: rgb(13, 7, 29);
+        color: white;
+        text-align: center;
+        font-family: "Monaco", "Courier New", monospace;
+      }
+
+      .loginButton {
+            background-color: #1c7414;
+            color:white;
+            border: 1px solid white;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 130%;
+            margin: 4px 2px;
+            border-radius: 12px;
+            }
+
+        .button {
+            background-color: #2948fa;
+            color:white;
+            border: 1px solid white;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            /* display: inline-block; */
+            font-size: 120%;
+            margin: 4px 2px;
+            border-radius: 14px;
+        }
+
+        .hide {
+              display: none;
+            }
+
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="login">
+        <h1>Stats Galore</h1>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScvzAAc8jgV4nQezVsw_-q-urHaoKlvRWhKkLYESIWNNjrqrg/viewform?embedded=true" width="640" height="891" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        <br/>
+        <a href="/login" class="btn btn-primary loginButton">Click here to login (you won't be able to login if access hasn't been granted yet)</a>
+      </div>
+      <div id="loggedin" class = "">
+        <div id="user-profile">
+        </div>
+        <br/>
+        <button onclick = "artistPage()" class = "button">Artist Stats Page</button>
+        <button onclick = "userPage()" class = "button">User Stats Page</button>
+        <div id="oauth">
+        </div>
+        <button class="btn btn-default hide" id="obtain-new-token">Obtain new token using the refresh token</button>
+      </div>
+    </div>
+
+    <script id="user-profile-template" type="text/x-handlebars-template">
+      <h1>Logged in as {{display_name}}</h1>
+      <div class="media">
+        <div class="pull-left">
+          <img class="media-object" width="150" src="{{images.0.url}}" />
+        </div>
+        <div class="media-body">
+          <dl class="dl-horizontal">
+            <dt class = "hide">Display name</dt><dd class="clearfix hide">{{display_name}}</dd>
+            <dt class = "hide">Id</dt><dd id = "ID" class = "hide">{{id}}</dd>
+            <dt class = "hide">Email</dt><dd class = "hide">{{email}}</dd>
+            <dt class = "hide">Spotify URI</dt><dd><a href="{{external_urls.spotify}}" class = "hide">{{external_urls.spotify}}</a></dd>
+            <dt class = "hide">Link</dt><dd><a href="{{href}}" class = "hide">{{href}}</a></dd>
+            <dt class = "hide">Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}" class = "hide">{{images.0.url}}</a></dd>
+            <dt class = "hide">Country</dt><dd class = "hide">{{country}}</dd>
+          </dl>
+        </div>
+      </div>
+    </script>
+
+    <script id="oauth-template" type="text/x-handlebars-template">
+      <!-- <h2>oAuth info</h2> -->
+      <dl class="dl-horizontal hide">
+        <dt class = "hide">Access token</dt><dd id = "accToken" class="text-overflow"  class = "hide">{{access_token}}</dd>
+        <dt  class = "hide">Refresh token</dt><dd class="text-overflow"  class = "hide">{{refresh_token}}</dd>
+      </dl>
+    </script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script>
+      (function() {
+
+        /**
+         * Obtains parameters from the hash of the URL
+         * @return Object
+         */
+        function getHashParams() {
+          var hashParams = {};
+          var e, r = /([^&;=]+)=?([^&;]*)/g,
+              q = window.location.hash.substring(1);
+          while ( e = r.exec(q)) {
+             hashParams[e[1]] = decodeURIComponent(e[2]);
+          }
+          return hashParams;
+        }
+
+        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+            userProfileTemplate = Handlebars.compile(userProfileSource),
+            userProfilePlaceholder = document.getElementById('user-profile');
+
+        var oauthSource = document.getElementById('oauth-template').innerHTML,
+            oauthTemplate = Handlebars.compile(oauthSource),
+            oauthPlaceholder = document.getElementById('oauth');
+
+        var params = getHashParams();
+
+        var access_token = params.access_token,
+            refresh_token = params.refresh_token,
+            error = params.error;
+
+        if (error) {
+          alert('There was an error during the authentication');
+        } else {
+          if (access_token) {
+            // render oauth info
+            oauthPlaceholder.innerHTML = oauthTemplate({
+              access_token: access_token,
+              refresh_token: refresh_token
+            });
+
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                success: function(response) {
+                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+
+                  $('#login').hide();
+                  $('#loggedin').show();
+                }
+            });
+          } else {
+              // render initial screen
+              $('#login').show();
+              $('#loggedin').hide();
+          }
+
+          document.getElementById('obtain-new-token').addEventListener('click', function() {
+            $.ajax({
+              url: '/refresh_token',
+              data: {
+                'refresh_token': refresh_token
+              }
+            }).done(function(data) {
+              access_token = data.access_token;
+              oauthPlaceholder.innerHTML = oauthTemplate({
+                access_token: access_token,
+                refresh_token: refresh_token
+              });
+            });
+          }, false);
+        }
+      })();
+    </script>
+  </body>
+</html>

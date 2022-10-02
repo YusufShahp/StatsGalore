@@ -1,0 +1,702 @@
+<!doctype html>
+<html>
+<head>
+    <script>
+
+        var songList;
+        var playDone = false;
+
+        window.onload = function() 
+        {
+            // const queryString = window.location.search;
+            // const urlParams = new URLSearchParams(queryString);
+            // const product = urlParams.get('Param');
+
+            // var fullUrl = window.location.href;
+            // fullUrl = fullUrl.replace('user_home', 'inner_user_home');
+            // let ajaxUrl = new URL(fullUrl);
+            // //fullUrl.searchParams.append('Param', product);
+            // window.alert(ajaxUrl);
+            // runAjax(ajaxUrl);
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const accToken = urlParams.get('AccToken');
+
+            var url = window.location.href.split('?')[0];
+            url = url.replace('user_home', 'inner_user_home');
+            let ajaxUrl = new URL(url);
+            ajaxUrl.searchParams.append('AccToken', accToken);
+            runAjax(ajaxUrl);
+        };
+
+        function getPlaylist()
+        {
+            if(!playDone)
+            {
+                playDone = true;
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                const accToken = urlParams.get('AccToken');
+                const username = urlParams.get('Username');
+
+                var url = window.location.href.split('?')[0];
+                url = url.replace('user_home', 'playlist_user_home');
+                let ajaxUrl = new URL(url);
+                ajaxUrl.searchParams.append('AccToken', accToken);
+                ajaxUrl.searchParams.append('Username', username);
+                ajaxUrl.searchParams.append('SongList', songList);
+                runAjax(ajaxUrl);
+            }
+        }
+
+        function runAjax(url) 
+        {
+        
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", url, true);
+
+        // function execute after request is successful 
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                //console.log(this.responseText);
+                console.log(this.responseText);
+                //document.getElementById('content1').textContent = this.responseText;
+
+                if(this.responseText == "Time Out...")
+                {
+                    var url = window.location.href.split('?')[0];
+                    url = url.replace('user_home', 'time_out');
+                    window.location.href = url;
+                }
+
+                if(this.responseText == "Playlist successful")
+                {
+                    document.getElementById('playT').className = "playText";
+                    document.getElementById('playButton').className = "buttonDone";
+                    document.getElementById('playButton').innerHTML = "Playlist Created";
+                }
+                else
+                {
+                    document.getElementById("playButton").disabled = false;
+                    placeElements(this.responseText);
+                }
+            }
+        }
+        xhr.send();
+        }
+
+        function placeTable(list, start)
+        {
+            list = list.split(";;");
+            for(let i = 0; i < 50; i++)
+            {
+                document.getElementById(start + (i+1)).textContent = list[i];
+            }
+        }
+
+        function placeElements(text)
+        {
+            var parts = text.split(',,');
+            var stats = parts[0];
+            var artists = parts[1];
+            var songs = parts[2];
+
+            songList = parts[3];
+
+            stats = stats.split('::');
+
+            var pop = parseFloat(stats[0]);
+            var dance = parseFloat(stats[1]);
+            var energy = parseFloat(stats[2]);
+            var happy = parseFloat(stats[3]);
+            var electrical = 100 - parseFloat(stats[4]);
+            var tempo = parseFloat(stats[5]);
+
+            var ind;
+            if(pop > 90.0)
+            {
+                ind = "very high"
+            }
+            else if(pop > 85.0)
+            {
+                ind = "high"
+            }
+            else if(pop > 80.0)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 70.0)
+            {
+                ind = "mid"
+            }
+            else if(pop > 65.0)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('pop').textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //DANCE
+
+            pop = dance;
+
+            if(pop > 85)
+            {
+                ind = "very high"
+            }
+            else if(pop > 80)
+            {
+                ind = "high"
+            }
+            else if(pop > 75)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 70)
+            {
+                ind = "mid"
+            }
+            else if(pop > 60)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('dance').textContent = "\u00A0" +pop + " (" + ind + ")";
+
+            //ENERGY
+
+            pop = energy;
+
+            if(pop > 85)
+            {
+                ind = "very high"
+            }
+            else if(pop > 80)
+            {
+                ind = "high"
+            }
+            else if(pop > 75)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 70)
+            {
+                ind = "mid"
+            }
+            else if(pop > 60)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('energy').textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //Happy
+
+            pop = happy;
+
+            if(pop > 75)
+            {
+                ind = "very high"
+            }
+            else if(pop > 65)
+            {
+                ind = "high"
+            }
+            else if(pop > 55)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 50)
+            {
+                ind = "mid"
+            }
+            else if(pop > 40)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('happy').textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //Electrical
+
+            pop = electrical;
+
+            if(pop > 90)
+            {
+                ind = "very high"
+            }
+            else if(pop > 85)
+            {
+                ind = "high"
+            }
+            else if(pop > 80)
+            {
+                ind = "mid/high"
+            }
+            else if(pop > 75)
+            {
+                ind = "mid"
+            }
+            else if(pop > 65)
+            {
+                ind = "mid/low"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('electrical').textContent = "\u00A0" + pop + " (" + ind + ")";
+
+            //tempo
+
+            pop = tempo;
+
+            if(pop > 110)
+            {
+                ind = "high"
+            }
+            else if(pop > 90)
+            {
+                ind = "mid"
+            }
+            else
+            {
+                ind = "low";
+            }
+
+            document.getElementById('tempo').textContent = "\u00A0" + pop + " BPM (" + ind + ")";
+
+            placeTable(artists, "artist");
+            placeTable(songs, "song")
+        }
+
+    </script>
+        <style type="text/css">
+            .hide {
+              display: none;
+            }
+      
+            body {
+              background-color: rgb(13, 7, 29);
+              color: white;
+              text-align: center;
+              font-family: "Monaco", "Courier New", monospace;
+            }
+
+            h1{
+                text-decoration: underline;
+            }
+
+            p{
+                font-size: medium;
+                text-align: left;
+                line-height: .7;
+            }
+
+            .rcorners1 {
+            border-radius: 25px;
+            background: #26ad21;
+            border: 2px solid #eaf4ea;
+            padding: 20px;
+            width: 40%;
+            height: 50%;
+            margin: 0 auto;
+            font-weight: bold;
+            font-size: large;
+            }
+
+            .table1{
+                text-align: left;
+                margin-left: auto;
+                margin-right: auto;
+                border:none;
+                border-collapse: collapse;
+            }
+
+            .table2{
+                margin-left: auto;
+                margin-right: auto;
+                border:solid;
+                border-collapse: collapse;
+                font-size: medium;
+                width: 55%;
+            }
+
+            .left{
+                border: 1px solid white;
+                text-align: center;
+                width: 5%;
+                font-weight: bold;
+            }
+
+            .right{
+                border: 1px solid white;
+                text-align: left;
+                width: 25%;
+            }
+
+            .middle{
+                border: 1px solid white;
+                text-align: left;
+                width: 25%;
+            }
+
+            .noRight{
+                border-left: 1px solid white;
+                border-collapse: collapse;
+            }
+      
+            .button {
+                background-color: #fa2929;
+                color:white;
+                border: 1px solid white;
+                padding: 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 120%;
+                margin: 4px 2px;
+                border-radius: 14px;
+            }
+
+            .buttonDone {
+            background-color: #8a6d6d;
+            color:white;
+            border: 1px solid white;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 120%;
+            margin: 4px 2px;
+            border-radius: 14px;
+            }
+
+            .playText{
+                color: #26ad21;
+                text-align: center;
+            }
+          </style>
+<title>Stats Galore</title>
+</head>
+<body>
+    <h1 id="content1">Stats Galore</h1>
+    <h2 id="content1">Your listening habits</h2>
+    <div class="rcorners1">
+        <table class = "table1">
+            <tr>
+              <td>Mainstream &nbsp</td>
+              <td class="noRight" id="pop">&nbsp Loading</td>
+            </tr>
+            <tr>
+              <td>Danceability &nbsp</td>
+              <td class="noRight" id="dance">&nbsp Loading</td>
+            </tr>
+            <tr>
+              <td>Energy &nbsp</td>
+              <td class="noRight" id="energy">&nbsp Loading</td>
+            </tr>
+            <tr>
+                <td>Happiness &nbsp</td>
+                <td class="noRight" id="happy">&nbsp Loading</td>
+            </tr>
+            <tr>
+                <td>Electrical &nbsp</td>
+                <td class="noRight" id="electrical">&nbsp Loading</td>
+            </tr>
+            <tr>
+                <td>Tempo &nbsp</td>
+                <td class="noRight" id="tempo">&nbsp Loading</td>
+            </tr>
+        </table>
+    </div>
+    <p>&nbsp Info on your stats:</p>
+    <p>&nbsp Mainstream: The higher this value, the more popular your listening habits are.</p>
+    <p>&nbsp Danceability: How easy your music taste is to dance to.</p>
+    <p>&nbsp Energy: How energetic your music taste is.</p>
+    <p>&nbsp Happiness: How happy your music sounds (just sonically, lyrics are not examined).</p>
+    <p>&nbsp Electrical: How electrical sounding your music is, or the opposite of acoustic.</p>
+    <p>&nbsp Tempo: This value is measured in beats per second, represents how "fast" your music taste is.</p>
+
+    <button class="button" id = "playButton" onclick="getPlaylist()" disabled>Get Top 50 Songs Playlist</button>
+    <h3>Your Favorite Songs and Artists</h3>
+    <p class = "playText hide" id = "playT">Playlist successfully made</p>
+    <p class="dText"></p>
+    <table class = "table2">
+        <tr>
+          <th class="left">#</th>
+          <th class = "middle" style="font-weight:bold; text-align: center;">Song</th>
+          <th class = "right" style="font-weight:bold; text-align: center;">Artist</th>
+        </tr>
+        <tr>
+          <td class="left">1</td>
+          <td class="middle" id="song1"></td>
+          <td class="right" id="artist1"></td>
+        </tr>
+        <tr>
+          <td class="left">2</td>
+          <td class="middle" id="song2"></td>
+          <td class="right" id="artist2"></td>
+        </tr>
+        <tr>
+            <td class="left">3</td>
+            <td class="middle" id="song3"></td>
+            <td class="right" id="artist3"></td>
+          </tr>
+          <tr>
+            <td class="left">4</td>
+            <td class="middle" id="song4"></td>
+            <td class="right" id="artist4"></td>
+          </tr>
+          <tr>
+            <td class="left">5</td>
+            <td class="middle" id="song5"></td>
+            <td class="right" id="artist5"></td>
+          </tr>
+          <tr>
+            <td class="left">6</td>
+            <td class="middle" id="song6"></td>
+            <td class="right" id="artist6"></td>
+          </tr>
+          <tr>
+            <td class="left">7</td>
+            <td class="middle" id="song7"></td>
+            <td class="right" id="artist7"></td>
+          </tr>
+          <tr>
+            <td class="left">8</td>
+            <td class="middle" id="song8"></td>
+            <td class="right" id="artist8"></td>
+          </tr>
+          <tr>
+            <td class="left">9</td>
+            <td class="middle" id="song9"></td>
+            <td class="right" id="artist9"></td>
+          </tr>
+          <tr>
+            <td class="left">10</td>
+            <td class="middle" id="song10"></td>
+            <td class="right" id="artist10"></td>
+          </tr>
+          <tr>
+            <td class="left">11</td>
+            <td class="middle" id="song11"></td>
+            <td class="right" id="artist11"></td>
+          </tr>
+          <tr>
+            <td class="left">12</td>
+            <td class="middle" id="song12"></td>
+            <td class="right" id="artist12"></td>
+          </tr>
+          <tr>
+              <td class="left">13</td>
+              <td class="middle" id="song13"></td>
+              <td class="right" id="artist13"></td>
+            </tr>
+            <tr>
+              <td class="left">14</td>
+              <td class="middle" id="song14"></td>
+              <td class="right" id="artist14"></td>
+            </tr>
+            <tr>
+              <td class="left">15</td>
+              <td class="middle" id="song15"></td>
+              <td class="right" id="artist15"></td>
+            </tr>
+            <tr>
+              <td class="left">16</td>
+              <td class="middle" id="song16"></td>
+              <td class="right" id="artist16"></td>
+            </tr>
+            <tr>
+              <td class="left">17</td>
+              <td class="middle" id="song17"></td>
+              <td class="right" id="artist17"></td>
+            </tr>
+            <tr>
+              <td class="left">18</td>
+              <td class="middle" id="song18"></td>
+              <td class="right" id="artist18"></td>
+            </tr>
+            <tr>
+              <td class="left">19</td>
+              <td class="middle" id="song19"></td>
+              <td class="right" id="artist19"></td>
+            </tr>
+            <tr>
+              <td class="left">20</td>
+              <td class="middle" id="song20"></td>
+              <td class="right" id="artist20"></td>
+            </tr>
+            <tr>
+            <td class="left">21</td>
+            <td class="middle" id="song21"></td>
+            <td class="right" id="artist21"></td>
+          </tr>
+          <tr>
+            <td class="left">22</td>
+            <td class="middle" id="song22"></td>
+            <td class="right" id="artist22"></td>
+          </tr>
+          <tr>
+              <td class="left">23</td>
+              <td class="middle" id="song23"></td>
+              <td class="right" id="artist23"></td>
+            </tr>
+            <tr>
+              <td class="left">24</td>
+              <td class="middle" id="song24"></td>
+              <td class="right" id="artist24"></td>
+            </tr>
+            <tr>
+              <td class="left">25</td>
+              <td class="middle" id="song25"></td>
+              <td class="right" id="artist25"></td>
+            </tr>
+            <tr>
+              <td class="left">26</td>
+              <td class="middle" id="song26"></td>
+              <td class="right" id="artist26"></td>
+            </tr>
+            <tr>
+              <td class="left">27</td>
+              <td class="middle" id="song27"></td>
+              <td class="right" id="artist27"></td>
+            </tr>
+            <tr>
+              <td class="left">28</td>
+              <td class="middle" id="song28"></td>
+              <td class="right" id="artist28"></td>
+            </tr>
+            <tr>
+              <td class="left">29</td>
+              <td class="middle" id="song29"></td>
+              <td class="right" id="artist29"></td>
+            </tr>
+            <tr>
+              <td class="left">30</td>
+              <td class="middle" id="song30"></td>
+              <td class="right" id="artist30"></td>
+            </tr>
+            <tr>
+                <td class="left">31</td>
+                <td class="middle" id="song31"></td>
+                <td class="right" id="artist31"></td>
+              </tr>
+              <tr>
+                <td class="left">32</td>
+                <td class="middle" id="song32"></td>
+                <td class="right" id="artist32"></td>
+              </tr>
+              <tr>
+                  <td class="left">33</td>
+                  <td class="middle" id="song33"></td>
+                  <td class="right" id="artist33"></td>
+                </tr>
+                <tr>
+                  <td class="left">34</td>
+                  <td class="middle" id="song34"></td>
+                  <td class="right" id="artist34"></td>
+                </tr>
+                <tr>
+                  <td class="left">35</td>
+                  <td class="middle" id="song35"></td>
+                  <td class="right" id="artist35"></td>
+                </tr>
+                <tr>
+                  <td class="left">36</td>
+                  <td class="middle" id="song36"></td>
+                  <td class="right" id="artist36"></td>
+                </tr>
+                <tr>
+                  <td class="left">37</td>
+                  <td class="middle" id="song37"></td>
+                  <td class="right" id="artist37"></td>
+                </tr>
+                <tr>
+                  <td class="left">38</td>
+                  <td class="middle" id="song38"></td>
+                  <td class="right" id="artist38"></td>
+                </tr>
+                <tr>
+                  <td class="left">39</td>
+                  <td class="middle" id="song39"></td>
+                  <td class="right" id="artist39"></td>
+                </tr>
+                <tr>
+                  <td class="left">40</td>
+                  <td class="middle" id="song40"></td>
+                  <td class="right" id="artist40"></td>
+                </tr>
+                <tr>
+                    <td class="left">41</td>
+                    <td class="middle" id="song41"></td>
+                    <td class="right" id="artist41"></td>
+                  </tr>
+                  <tr>
+                    <td class="left">42</td>
+                    <td class="middle" id="song42"></td>
+                    <td class="right" id="artist42"></td>
+                  </tr>
+                  <tr>
+                      <td class="left">43</td>
+                      <td class="middle" id="song43"></td>
+                      <td class="right" id="artist43"></td>
+                    </tr>
+                    <tr>
+                      <td class="left">44</td>
+                      <td class="middle" id="song44"></td>
+                      <td class="right" id="artist44"></td>
+                    </tr>
+                    <tr>
+                      <td class="left">45</td>
+                      <td class="middle" id="song45"></td>
+                      <td class="right" id="artist45"></td>
+                    </tr>
+                    <tr>
+                      <td class="left">46</td>
+                      <td class="middle" id="song46"></td>
+                      <td class="right" id="artist46"></td>
+                    </tr>
+                    <tr>
+                      <td class="left">47</td>
+                      <td class="middle" id="song47"></td>
+                      <td class="right" id="artist47"></td>
+                    </tr>
+                    <tr>
+                      <td class="left">48</td>
+                      <td class="middle" id="song48"></td>
+                      <td class="right" id="artist48"></td>
+                    </tr>
+                    <tr>
+                      <td class="left">49</td>
+                      <td class="middle" id="song49"></td>
+                      <td class="right" id="artist49"></td>
+                    </tr>
+                    <tr>
+                      <td class="left">50</td>
+                      <td class="middle" id="song50"></td>
+                      <td class="right" id="artist50"></td>
+                    </tr>
+      </table>
+</body>
+</html>

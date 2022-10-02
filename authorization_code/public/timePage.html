@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+    <script>
+
+        function getPlaylist()
+        {
+            var url = window.location.href.split('?')[0];
+            url = url.replace('/time_out', '');
+            window.location.href = url;
+        }
+
+    </script>
+        <style type="text/css">
+            .hide {
+              display: none;
+            }
+      
+            body {
+              background-color: rgb(13, 7, 29);
+              color: white;
+              text-align: center;
+              font-family: "Monaco", "Courier New", monospace;
+            }
+
+            h1{
+                text-decoration: underline;
+            }
+
+            p{
+                font-size: medium;
+                text-align: left;
+                line-height: .7;
+            }
+
+            .rcorners1 {
+            border-radius: 25px;
+            background: #26ad21;
+            border: 2px solid #eaf4ea;
+            padding: 20px;
+            width: 40%;
+            height: 50%;
+            margin: 0 auto;
+            font-weight: bold;
+            font-size: large;
+            }
+
+            .table1{
+                text-align: left;
+                margin-left: auto;
+                margin-right: auto;
+                border:none;
+                border-collapse: collapse;
+            }
+
+            .table2{
+                margin-left: auto;
+                margin-right: auto;
+                border:solid;
+                border-collapse: collapse;
+                font-size: medium;
+                width: 55%;
+            }
+
+            .left{
+                border: 1px solid white;
+                text-align: center;
+                width: 5%;
+                font-weight: bold;
+            }
+
+            .right{
+                border: 1px solid white;
+                text-align: left;
+                width: 25%;
+            }
+
+            .middle{
+                border: 1px solid white;
+                text-align: left;
+                width: 25%;
+            }
+
+            .noRight{
+                border-left: 1px solid white;
+                border-collapse: collapse;
+            }
+      
+            .button {
+                background-color: #156106;
+                color:white;
+                border: 1px solid white;
+                padding: 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 120%;
+                margin: 4px 2px;
+                border-radius: 12px;
+            }
+
+            .buttonDone {
+            background-color: #8a6d6d;
+            color:white;
+            border: 1px solid white;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 120%;
+            margin: 4px 2px;
+            border-radius: 14px;
+            }
+
+            .playText{
+                color: #26ad21;
+                text-align: center;
+            }
+          </style>
+<title>Stats Galore</title>
+</head>
+<body>
+    <h1 id="content1">Stats Galore</h1>
+    <h2 id="content1">Your session has timed out, please sign in to use the website again.</h2>
+
+    <br/>
+    <button class="button" id = "playButton" onclick="getPlaylist()" >Login Again</button>
+</body>
+</html>
